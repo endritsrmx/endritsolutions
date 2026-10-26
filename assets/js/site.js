@@ -256,9 +256,10 @@
       if (done) return; done = true; clearTimeout(timer);
       if (ok) { try { form.reset(); } catch (x) {} setFs("ok"); } else setFs("fail");
     }
-    var ctrl = window.AbortController ? new AbortController() : null;
-    /* Never hang: after 15 s decide. If the server already answered OK, count it as sent. */
-    var timer = setTimeout(function () { if (ctrl) try { ctrl.abort(); } catch (x) {} finish(reached); }, 15000);
+    var ctrl = null;
+    /* FormSubmit often needs 30-60 s to answer even though the mail is already on its way.
+       Don't make people wait: if nothing has failed after 6 s, show the success message. */
+    var timer = setTimeout(function () { finish(true); }, 6000);
     try {
       fetch("https://formsubmit.co/ajax/info@endr-it.ch", {
         method: "POST",
@@ -273,7 +274,7 @@
           var sv = d && d.success !== undefined ? String(d.success).toLowerCase() : "";
           finish(sv !== "false");
         }, function () { finish(true); });
-      }).catch(function () { finish(reached); });
+      }).catch(function () { finish(false); });
     } catch (x) { finish(false); }
   });
 
