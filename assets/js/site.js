@@ -43,7 +43,10 @@
       "contact.hint": "Die Anfrage geht direkt an mich.",
       "contact.error": "Bitte geben Sie Ihren Namen, eine gültige E-Mail-Adresse und eine Nachricht an.",
       "contact.subject": "Anfrage über endr-it.ch",
-      "footer.privacy": "Datenschutz & Impressum"
+      "footer.privacy": "Datenschutz & Impressum",
+      "cookie.title": "Bitte die Cookies nicht essen – einfach akzeptieren.",
+      "cookie.body": "Keine Sorge, hier wird nichts getrackt: Ich speichere nur Ihre Sprachwahl im Browser.",
+      "cookie.more": "Mehr erfahren", "cookie.accept": "Akzeptieren", "cookie.necessary": "Nur notwendige"
     },
     en: {
       "nav.services": "Services", "nav.about": "About", "nav.contact": "Contact",
@@ -85,7 +88,10 @@
       "contact.hint": "Your enquiry goes straight to me.",
       "contact.error": "Please enter your name, a valid email address and a message.",
       "contact.subject": "Enquiry via endr-it.ch",
-      "footer.privacy": "Privacy & legal notice"
+      "footer.privacy": "Privacy & legal notice",
+      "cookie.title": "Don't eat the cookies. Just accept them.",
+      "cookie.body": "Don't worry, there's no tracking here: I only store your language choice in your browser.",
+      "cookie.more": "Learn more", "cookie.accept": "Accept", "cookie.necessary": "Necessary only"
     }
   };
 
@@ -257,6 +263,55 @@
       });
     }).catch(function () { setFs("fail"); });
   });
+
+  /* Cookie bar: shown once the intro is gone, takes three bites when dismissed */
+  (function () {
+    var bar = document.getElementById("cookie-bar");
+    if (!bar) return;
+    var saved = null;
+    try { saved = localStorage.getItem("endrit-cookies"); } catch (e) {}
+    if (saved) { bar.parentNode.removeChild(bar); return; }
+
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var grid = bar.querySelector(".cookie-pix");
+    var chips = { "1,3": 1, "2,5": 1, "3,2": 1, "4,4": 1, "5,1": 1, "5,6": 1, "6,3": 1 };
+    var bites = [[0, 7], [1.2, 7.4], [-0.2, 5.6]];
+    var pix = [];
+    for (var r = 0; r < 8; r++) for (var c = 0; c < 8; c++) {
+      var s = document.createElement("span");
+      if (chips[r + "," + c]) s.className = "chip";
+      if (Math.hypot(r - 3.5, c - 3.5) > 3.6) s.className += " off";
+      grid.appendChild(s);
+      pix.push({ el: s, r: r, c: c });
+    }
+
+    function show() {
+      bar.hidden = false;
+      requestAnimationFrame(function () { requestAnimationFrame(function () { bar.classList.add("is-on"); }); });
+    }
+    function remove() { if (bar.parentNode) bar.parentNode.removeChild(bar); }
+    function bite(n) {
+      var b = bites[n];
+      pix.forEach(function (p) { if (Math.hypot(p.r - b[0], p.c - b[1]) <= 1.7) p.el.classList.add("off"); });
+    }
+    function choose(v) {
+      try { localStorage.setItem("endrit-cookies", v); } catch (e) {}
+      if (reduced) { remove(); return; }
+      bar.classList.add("is-biting");
+      var n = 0;
+      (function next() {
+        bite(n++);
+        if (n < bites.length) setTimeout(next, 160);
+        else setTimeout(function () { bar.classList.remove("is-on"); setTimeout(remove, 450); }, 380);
+      })();
+    }
+    $all("[data-cookie]", bar).forEach(function (b) {
+      b.addEventListener("click", function () { choose(b.getAttribute("data-cookie")); });
+    });
+
+    if (window.__esIntroDone || !document.getElementById("es-intro")) setTimeout(show, 400);
+    else window.addEventListener("intro:done", function () { setTimeout(show, 400); }, { once: true });
+  })();
 
   document.querySelector(".year").textContent = new Date().getFullYear();
   applyLang(lang);
