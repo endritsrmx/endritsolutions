@@ -38,7 +38,7 @@
       "contact.copy": "Kopieren", "contact.copied": "Kopiert",
       "contact.service": "Leistung", "contact.serviceAny": "Allgemeine Anfrage", "contact.message": "Nachricht",
       "contact.send": "Anfrage senden", "contact.sending": "Wird gesendet …",
-      "contact.sent": "Danke! Ihre Anfrage ist bei mir angekommen.",
+      "contact.sent": "Anfrage erfolgreich gesendet! Ich melde mich so schnell wie möglich.",
       "contact.fail": "Das Senden hat leider nicht geklappt.", "contact.failLink": "Stattdessen per E-Mail senden",
       "contact.hint": "Die Anfrage geht direkt an mich.",
       "contact.error": "Bitte geben Sie Ihren Namen, eine gültige E-Mail-Adresse und eine Nachricht an.",
@@ -83,7 +83,7 @@
       "contact.copy": "Copy", "contact.copied": "Copied",
       "contact.service": "Service", "contact.serviceAny": "General enquiry", "contact.message": "Message",
       "contact.send": "Send enquiry", "contact.sending": "Sending …",
-      "contact.sent": "Thank you! Your enquiry has reached me.",
+      "contact.sent": "Request sent successfully! I'll get back to you as soon as possible.",
       "contact.fail": "Sorry, sending failed.", "contact.failLink": "Send by email instead",
       "contact.hint": "Your enquiry goes straight to me.",
       "contact.error": "Please enter your name, a valid email address and a message.",
@@ -172,9 +172,8 @@
       setTimeout(function () { cell.classList.remove("spark"); }, 1200);
     }, 1800);
   }
-  if (window.__esIntroDone) buildMark();
-  window.addEventListener("intro:done", buildMark);
-  setTimeout(buildMark, 9500);
+  document.addEventListener("endrit-intro-done", buildMark);
+  setTimeout(buildMark, 6000);
 
   /* SEO example: count up once it is visible */
   var dash = document.querySelector(".dashboard");
@@ -252,16 +251,30 @@
     setFs("sending");
     var fn = name.split(" ").filter(Boolean)[0] || "";
     var ar = "Hallo" + (fn ? " " + fn : "") + ", vielen Dank für deine Anfrage! Wir haben deine Nachricht erhalten und melden uns so schnell wie möglich bei dir – im Normalfall dauert es höchstens 24 Stunden.\n\nFreundliche Grüsse\nEndrit Sermaxhaj – endrIT Solutions · info@endr-it.ch · endr-it.ch\n\n—\n\nHi" + (fn ? " " + fn : "") + ", thank you for your enquiry! We have received your message and will get back to you as soon as possible – normally within 24 hours at most.\n\nKind regards\nEndrit Sermaxhaj – endrIT Solutions";
-    fetch("https://formsubmit.co/ajax/info@endr-it.ch", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify({ name: name, email: email, service: label, message: message, _replyto: email, _subject: "Neue Anfrage über endr-it.ch", _template: "table", _captcha: "false", _honey: "", _autoresponse: ar })
-    }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (d) {
-        if (r.ok && String(d.success) === "true") { setFs("ok"); try { form.reset(); } catch (x) {} }
-        else setFs("fail");
-      });
-    }).catch(function () { setFs("fail"); });
+    var done = false, reached = false;
+    function finish(ok) {
+      if (done) return; done = true; clearTimeout(timer);
+      if (ok) { try { form.reset(); } catch (x) {} setFs("ok"); } else setFs("fail");
+    }
+    var ctrl = window.AbortController ? new AbortController() : null;
+    /* Never hang: after 15 s decide. If the server already answered OK, count it as sent. */
+    var timer = setTimeout(function () { if (ctrl) try { ctrl.abort(); } catch (x) {} finish(reached); }, 15000);
+    try {
+      fetch("https://formsubmit.co/ajax/info@endr-it.ch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ name: name, email: email, service: label, message: message, _replyto: email, _subject: "Neue Anfrage über endr-it.ch", _template: "table", _captcha: "false", _honey: "", _autoresponse: ar }),
+        signal: ctrl ? ctrl.signal : undefined
+      }).then(function (r) {
+        if (!r.ok) { finish(false); return; }
+        reached = true;
+        return r.text().then(function (txt) {
+          var d = null; try { d = JSON.parse(txt); } catch (x) {}
+          var sv = d && d.success !== undefined ? String(d.success).toLowerCase() : "";
+          finish(sv !== "false");
+        }, function () { finish(true); });
+      }).catch(function () { finish(reached); });
+    } catch (x) { finish(false); }
   });
 
   /* Cookie bar: shown once the intro is gone, takes three bites when dismissed */
@@ -309,8 +322,12 @@
       b.addEventListener("click", function () { choose(b.getAttribute("data-cookie")); });
     });
 
-    if (window.__esIntroDone || !document.getElementById("es-intro")) setTimeout(show, 400);
-    else window.addEventListener("intro:done", function () { setTimeout(show, 400); }, { once: true });
+    /* endrit-intro.js fires "endrit-intro-done" once its overlay is gone;
+       the fallback covers a missing or blocked intro script. */
+    var shown = false;
+    function showOnce() { if (!shown) { shown = true; show(); } }
+    document.addEventListener("endrit-intro-done", function () { setTimeout(showOnce, 400); }, { once: true });
+    setTimeout(showOnce, 6000);
   })();
 
   document.querySelector(".year").textContent = new Date().getFullYear();
