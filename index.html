@@ -216,12 +216,18 @@
         </div>
       </div>
 
-      <form class="contact-form" novalidate>
+      <form class="contact-form" action="https://formsubmit.co/info@endr-it.ch" method="POST" accept-charset="UTF-8" novalidate>
+        <input type="hidden" name="_subject" value="Neue Anfrage über endr-it.ch">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_next" value="https://endr-it.ch/?gesendet=1#contact">
+        <input type="hidden" name="_replyto" value="">
+        <input type="hidden" name="_autoresponse" value="">
+        <input type="hidden" name="service" value="Allgemeine Anfrage">
         <div class="form-row">
           <input name="name" autocomplete="name" placeholder="Name" aria-label="Name" data-i18n-ph="contact.name">
           <input name="email" type="email" autocomplete="email" placeholder="E-Mail" aria-label="E-Mail" data-i18n-ph="contact.email">
         </div>
-        <select name="service" aria-label="Leistung" data-i18n-aria="contact.service">
+        <select class="service-select" aria-label="Leistung" data-i18n-aria="contact.service">
           <option value="0" data-i18n="contact.serviceAny">Allgemeine Anfrage</option>
           <option value="1" data-i18n="s0.title">IT-Dienstleistungen</option>
           <option value="2" data-i18n="s1.title">Webdesign &amp; Website-Redesign</option>
@@ -230,7 +236,6 @@
         <textarea name="message" rows="5" placeholder="Nachricht" aria-label="Nachricht" data-i18n-ph="contact.message"></textarea>
         <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
         <p class="form-msg error" role="alert" data-state="err" hidden data-i18n="contact.error">Bitte geben Sie Ihren Namen, eine gültige E-Mail-Adresse und eine Nachricht an.</p>
-        <p class="form-msg error" role="alert" data-state="fail" hidden><span data-i18n="contact.fail">Das Senden hat leider nicht geklappt.</span> <a class="mailto-fallback" href="mailto:info@endr-it.ch" data-i18n="contact.failLink">Stattdessen per E-Mail senden</a></p>
         <div class="form-foot">
           <button type="submit" class="btn btn-primary" data-i18n="contact.send">Anfrage senden</button>
           <span class="small" data-i18n="contact.hint">Die Anfrage geht direkt an mich.</span>
@@ -267,7 +272,7 @@
   </div>
 </div>
 
-<script src="assets/js/site.js?v=20261026b"></script>
+<script src="assets/js/site.js?v=20261027a"></script>
 <script src="endrit-intro.js" defer></script>
 </body>
 </html>

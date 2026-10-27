@@ -214,12 +214,12 @@
     });
   });
 
-  /* Contact form (FormSubmit) */
+  /* Contact form (FormSubmit, normal POST so captcha + _autoresponse work) */
   var form = document.querySelector(".contact-form");
-  var select = form.querySelector("[name=service]");
+  var select = form.querySelector(".service-select");
   var sendBtn = form.querySelector("[type=submit]");
-  var fallback = form.querySelector(".mailto-fallback");
   var state = { fs: "idle" };
+  function hid(n) { return form.querySelector("input[type=hidden][name=" + n + "]"); }
 
   $all("[data-service]").forEach(function (a) {
     a.addEventListener("click", function () { select.value = a.getAttribute("data-service"); });
@@ -232,51 +232,37 @@
     sendBtn.textContent = t(state.fs === "sending" ? "contact.sending" : "contact.send");
     sendBtn.disabled = state.fs === "sending";
   }
-  function setFs(fs) { state.fs = fs; setSendLabel(); showMsg(fs === "ok" || fs === "fail" ? fs : null); }
+  function setFs(fs) { state.fs = fs; setSendLabel(); showMsg(fs === "ok" ? "ok" : null); }
 
   form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var f = new FormData(form);
-    var name = String(f.get("name") || "").trim();
-    var email = String(f.get("email") || "").trim();
-    var labels = [t("contact.serviceAny"), t("s0.title"), t("s1.title"), t("s2.title")];
-    var label = labels[+select.value || 0];
-    var message = String(f.get("message") || "").trim();
-    if (!name || !/^\S+@\S+\.\S+$/.test(email) || !message) { showMsg("err"); return; }
+    if (state.fs === "sending") { e.preventDefault(); return; }
+    var name = String(form.elements.name.value || "").trim();
+    var email = String(form.elements.email.value || "").trim();
+    var message = String(form.elements.message.value || "").trim();
+    if (!name || !/^\S+@\S+\.\S+$/.test(email) || !message) { e.preventDefault(); showMsg("err"); return; }
     showMsg(null);
-    var body = message + "\n\n—\n" + t("contact.name") + ": " + name + "\n" + t("contact.email") + ": " + email + "\n" + t("contact.service") + ": " + label;
-    fallback.href = "mailto:info@endr-it.ch?subject=" + encodeURIComponent(t("contact.subject") + ": " + label) + "&body=" + encodeURIComponent(body);
-    if (state.fs === "sending") return;
-    if (String(f.get("_honey") || "")) { setFs("ok"); return; }
-    setFs("sending");
+    var labels = [t("contact.serviceAny"), t("s0.title"), t("s1.title"), t("s2.title")];
+    hid("service").value = labels[+select.value || 0];
+    hid("_replyto").value = email;
     var fn = name.split(" ").filter(Boolean)[0] || "";
-    var ar = "Hallo" + (fn ? " " + fn : "") + ", vielen Dank für deine Anfrage! Wir haben deine Nachricht erhalten und melden uns so schnell wie möglich bei dir – im Normalfall dauert es höchstens 24 Stunden.\n\nFreundliche Grüsse\nEndrit Sermaxhaj – endrIT Solutions · info@endr-it.ch · endr-it.ch\n\n—\n\nHi" + (fn ? " " + fn : "") + ", thank you for your enquiry! We have received your message and will get back to you as soon as possible – normally within 24 hours at most.\n\nKind regards\nEndrit Sermaxhaj – endrIT Solutions";
-    var done = false, reached = false;
-    function finish(ok) {
-      if (done) return; done = true; clearTimeout(timer);
-      if (ok) { try { form.reset(); } catch (x) {} setFs("ok"); } else setFs("fail");
-    }
-    var ctrl = null;
-    /* FormSubmit often needs 30-60 s to answer even though the mail is already on its way.
-       Don't make people wait: if nothing has failed after 6 s, show the success message. */
-    var timer = setTimeout(function () { finish(true); }, 6000);
-    try {
-      fetch("https://formsubmit.co/ajax/info@endr-it.ch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({ name: name, email: email, service: label, message: message, _replyto: email, _subject: "Neue Anfrage über endr-it.ch", _template: "table", _captcha: "false", _honey: "", _autoresponse: ar }),
-        signal: ctrl ? ctrl.signal : undefined
-      }).then(function (r) {
-        if (!r.ok) { finish(false); return; }
-        reached = true;
-        return r.text().then(function (txt) {
-          var d = null; try { d = JSON.parse(txt); } catch (x) {}
-          var sv = d && d.success !== undefined ? String(d.success).toLowerCase() : "";
-          finish(sv !== "false");
-        }, function () { finish(true); });
-      }).catch(function () { finish(false); });
-    } catch (x) { finish(false); }
+    hid("_autoresponse").value = "Hallo" + (fn ? " " + fn : "") + ", vielen Dank für deine Anfrage! Wir haben deine Nachricht erhalten und melden uns so schnell wie möglich bei dir – im Normalfall dauert es höchstens 24 Stunden.\n\nFreundliche Grüsse\nEndrit Sermaxhaj – endrIT Solutions · info@endr-it.ch · endr-it.ch\n\n—\n\nHi" + (fn ? " " + fn : "") + ", thank you for your enquiry! We have received your message and will get back to you as soon as possible – normally within 24 hours at most.\n\nKind regards\nEndrit Sermaxhaj – endrIT Solutions";
+    /* Button disabled after the submit event has been dispatched; the form submits normally */
+    setTimeout(function () { setFs("sending"); }, 0);
   });
+  /* Back button (bfcache): don't leave the button stuck on "sending" */
+  window.addEventListener("pageshow", function (ev) { if (ev.persisted && state.fs === "sending") setFs("idle"); });
+
+  /* Returning from FormSubmit: ?gesendet=1 */
+  (function () {
+    var q = new URLSearchParams(location.search);
+    if (q.get("gesendet") !== "1") return;
+    setFs("ok");
+    q.delete("gesendet");
+    var qs = q.toString();
+    try { history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + "#contact"); } catch (x) {}
+    var sec = document.getElementById("contact");
+    if (sec) setTimeout(function () { sec.scrollIntoView({ block: "start" }); }, 50);
+  })();
 
   /* Cookie bar: shown once the intro is gone, takes three bites when dismissed */
   (function () {
