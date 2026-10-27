@@ -245,7 +245,10 @@
     hid("service").value = labels[+select.value || 0];
     hid("_replyto").value = email;
     var fn = name.split(" ").filter(Boolean)[0] || "";
-    hid("_autoresponse").value = "Hallo" + (fn ? " " + fn : "") + ", vielen Dank für deine Anfrage! Wir haben deine Nachricht erhalten und melden uns so schnell wie möglich bei dir – im Normalfall dauert es höchstens 24 Stunden.\n\nFreundliche Grüsse\nEndrit Sermaxhaj – endrIT Solutions · info@endr-it.ch · endr-it.ch\n\n—\n\nHi" + (fn ? " " + fn : "") + ", thank you for your enquiry! We have received your message and will get back to you as soon as possible – normally within 24 hours at most.\n\nKind regards\nEndrit Sermaxhaj – endrIT Solutions";
+    var hi = fn ? " " + fn : "";
+    hid("_autoresponse").value = lang === "en"
+      ? "Hi" + hi + ", thank you for your enquiry! We have received your message and will get back to you as soon as possible, normally within 24 hours. Kind regards, Endrit Sermaxhaj, endrIT Solutions"
+      : "Hallo" + hi + ", vielen Dank für deine Anfrage! Wir haben deine Nachricht erhalten und melden uns so schnell wie möglich bei dir, im Normalfall innerhalb von 24 Stunden. Freundliche Grüsse, Endrit Sermaxhaj, endrIT Solutions";
     /* Button disabled after the submit event has been dispatched; the form submits normally */
     setTimeout(function () { setFs("sending"); }, 0);
   });
