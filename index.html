@@ -216,10 +216,10 @@
         </div>
       </div>
 
-      <form class="contact-form" action="https://formsubmit.co/info@endr-it.ch" method="POST" accept-charset="UTF-8" novalidate>
+      <form class="contact-form" action="https://formsubmit.co/info@endr-it.ch" method="POST" target="fs-frame" accept-charset="UTF-8" novalidate>
         <input type="hidden" name="_subject" value="Neue Anfrage über endr-it.ch">
         <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_next" value="https://endr-it.ch/?gesendet=1#contact">
+        <input type="hidden" name="_next" value="https://endr-it.ch/gesendet.html">
         <input type="hidden" name="_replyto" value="">
         <input type="hidden" name="_autoresponse" value="">
         <input type="hidden" name="service" value="Allgemeine Anfrage">
@@ -244,6 +244,24 @@
       </form>
     </div>
   </section>
+  <div class="fs-modal" id="fs-modal" hidden>
+    <div class="fs-backdrop" data-fs-close></div>
+    <div class="fs-dialog" role="dialog" aria-modal="true" aria-labelledby="fs-title">
+      <div class="fs-head">
+        <div>
+          <p class="fs-kicker">// endrIT</p>
+          <h3 id="fs-title" data-i18n="captcha.title">Kurz bestätigen, dass du kein Roboter bist</h3>
+          <p class="fs-sub" data-i18n="captcha.sub">Ein Klick noch, dann ist deine Anfrage unterwegs.</p>
+        </div>
+        <button type="button" class="fs-close" data-fs-close aria-label="Schliessen" data-i18n-aria="captcha.close">&times;</button>
+      </div>
+      <div class="fs-body">
+        <div class="fs-loading" aria-live="polite"><span class="fs-dots"><i></i><i></i><i></i></span> <span data-i18n="captcha.loading">Wird geladen …</span></div>
+        <iframe name="fs-frame" id="fs-frame" title="Sicherheitsprüfung" src="about:blank"></iframe>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <footer class="site-footer">
@@ -272,7 +290,7 @@
   </div>
 </div>
 
-<script src="assets/js/site.js?v=20261027b"></script>
+<script src="assets/js/site.js?v=20261027c"></script>
 <script src="endrit-intro.js" defer></script>
 </body>
 </html>

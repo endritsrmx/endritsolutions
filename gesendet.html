@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Gesendet · endrIT</title>
+<style>html,body{margin:0;background:#0A051E;color:#f6f4ff;font:16px "Space Grotesk",system-ui,sans-serif}p{padding:24px}</style></head>
+<body><p>✓</p>
+<script>
+(function () {
+  var ok = ["https://endr-it.ch", "https://www.endr-it.ch", "http://localhost:8765"];
+  if (window.top === window) { location.replace("/?gesendet=1#contact"); return; }
+  var o = location.origin;
+  if (ok.indexOf(o) < 0) o = "https://endr-it.ch";
+  try { window.parent.postMessage({ type: "endrit-form-sent" }, o); } catch (e) {}
+})();
+</script></body></html>

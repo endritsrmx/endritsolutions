@@ -302,3 +302,30 @@ p { margin: 0; }
   *, *::before, *::after { transition-duration: .001ms !important; }
 }
 .arr{display:inline-block;vertical-align:-1px;margin-left:2px}
+
+/* Captcha modal (FormSubmit in an iframe) */
+html.fs-lock, html.fs-lock body { overflow: hidden; }
+.fs-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.fs-modal[hidden] { display: none; }
+.fs-backdrop { position: absolute; inset: 0; background: rgba(10, 5, 30, 0.86); }
+.fs-dialog { position: relative; width: min(560px, 100%); max-height: calc(100dvh - 48px); display: flex; flex-direction: column;
+  background: var(--bg); border: 1px solid var(--cyan); border-radius: 6px; box-shadow: 6px 6px 0 var(--purple); }
+.fs-head { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; padding: 18px 20px 14px; border-bottom: 1px dashed rgba(39, 218, 242, 0.35); }
+.fs-kicker { margin: 0 0 6px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--cyan); }
+.fs-head h3 { margin: 0; font-family: "Space Grotesk", system-ui, sans-serif; font-size: 20px; line-height: 1.25; font-weight: 600; }
+.fs-sub { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+.fs-close { flex: none; width: 40px; height: 40px; border: 1px solid rgba(246, 244, 255, 0.22); border-radius: 4px; background: transparent; color: var(--text); font-size: 24px; line-height: 1; cursor: pointer; }
+.fs-close:hover { border-color: var(--cyan); color: var(--cyan); }
+.fs-body { position: relative; flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; background: #fff; border-radius: 0 0 5px 5px; }
+.fs-body iframe { display: block; width: 100%; min-height: 560px; height: 62vh; border: 0; background: #fff; }
+.fs-loading { display: none; position: absolute; inset: 0; z-index: 1; align-items: center; justify-content: center; gap: 10px; background: var(--bg); color: var(--muted); font-family: var(--mono); font-size: 13px; }
+.fs-modal.is-loading .fs-loading { display: flex; }
+.fs-dots i { display: inline-block; width: 7px; height: 7px; margin: 0 2px; background: var(--cyan); animation: fsdot 1s infinite steps(2); }
+.fs-dots i:nth-child(2) { animation-delay: .2s; background: var(--purple); } .fs-dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes fsdot { 50% { opacity: .2; } }
+@media (max-width: 600px) {
+  .fs-modal { padding: 8px; }
+  .fs-dialog { width: 100%; height: calc(100dvh - 16px); max-height: none; box-shadow: 4px 4px 0 var(--purple); }
+  .fs-head { padding: 14px 14px 12px; } .fs-head h3 { font-size: 18px; }
+  .fs-body iframe { height: 100%; }
+}

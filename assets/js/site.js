@@ -38,6 +38,7 @@
       "contact.copy": "Kopieren", "contact.copied": "Kopiert",
       "contact.service": "Leistung", "contact.serviceAny": "Allgemeine Anfrage", "contact.message": "Nachricht",
       "contact.send": "Anfrage senden", "contact.sending": "Wird gesendet …",
+      "captcha.title": "Kurz bestätigen, dass du kein Roboter bist", "captcha.sub": "Ein Klick noch, dann ist deine Anfrage unterwegs.", "captcha.loading": "Wird geladen …", "captcha.close": "Schliessen",
       "contact.sent": "Anfrage erfolgreich gesendet! Ich melde mich so schnell wie möglich.",
       "contact.fail": "Das Senden hat leider nicht geklappt.", "contact.failLink": "Stattdessen per E-Mail senden",
       "contact.hint": "Die Anfrage geht direkt an mich.",
@@ -83,6 +84,7 @@
       "contact.copy": "Copy", "contact.copied": "Copied",
       "contact.service": "Service", "contact.serviceAny": "General enquiry", "contact.message": "Message",
       "contact.send": "Send enquiry", "contact.sending": "Sending …",
+      "captcha.title": "Quick check that you're not a robot", "captcha.sub": "One more click and your enquiry is on its way.", "captcha.loading": "Loading …", "captcha.close": "Close",
       "contact.sent": "Request sent successfully! I'll get back to you as soon as possible.",
       "contact.fail": "Sorry, sending failed.", "contact.failLink": "Send by email instead",
       "contact.hint": "Your enquiry goes straight to me.",
@@ -249,8 +251,43 @@
     hid("_autoresponse").value = lang === "en"
       ? "Hi" + hi + ", thank you for your enquiry! We have received your message and will get back to you as soon as possible, normally within 24 hours. Kind regards, Endrit Sermaxhaj, endrIT Solutions"
       : "Hallo" + hi + ", vielen Dank für deine Anfrage! Wir haben deine Nachricht erhalten und melden uns so schnell wie möglich bei dir, im Normalfall innerhalb von 24 Stunden. Freundliche Grüsse, Endrit Sermaxhaj, endrIT Solutions";
-    /* Button disabled after the submit event has been dispatched; the form submits normally */
+    /* Post normally (no AJAX) into the iframe inside the modal */
+    hid("_next").value = location.origin + "/gesendet.html";
+    openModal();
     setTimeout(function () { setFs("sending"); }, 0);
+  });
+
+  /* Captcha modal */
+  var modal = document.getElementById("fs-modal");
+  var frame = document.getElementById("fs-frame");
+  var lastFocus = null;
+  function openModal() {
+    lastFocus = document.activeElement;
+    modal.classList.add("is-loading");
+    modal.hidden = false;
+    document.documentElement.classList.add("fs-lock");
+    frame.setAttribute("data-armed", "1");
+    var c = modal.querySelector(".fs-close");
+    setTimeout(function () { c.focus(); }, 30);
+  }
+  function closeModal(sent) {
+    if (modal.hidden) return;
+    modal.hidden = true;
+    document.documentElement.classList.remove("fs-lock");
+    frame.removeAttribute("data-armed");
+    try { frame.src = "about:blank"; } catch (x) {}
+    if (sent) { form.reset(); setFs("ok"); } else { setFs("idle"); }
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  frame.addEventListener("load", function () {
+    if (frame.getAttribute("data-armed")) modal.classList.remove("is-loading");
+  });
+  $all("[data-fs-close]", modal).forEach(function (el) { el.addEventListener("click", function () { closeModal(false); }); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) closeModal(false); });
+  window.addEventListener("message", function (e) {
+    if (e.origin !== location.origin) return;
+    if (!e.data || e.data.type !== "endrit-form-sent") return;
+    closeModal(true);
   });
   /* Back button (bfcache): don't leave the button stuck on "sending" */
   window.addEventListener("pageshow", function (ev) { if (ev.persisted && state.fs === "sending") setFs("idle"); });
