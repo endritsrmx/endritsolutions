@@ -244,7 +244,11 @@ p { margin: 0; }
   font-size: 13px; color: var(--muted);
 }
 .site-footer img { width: 96px; height: auto; opacity: .9; }
-.footer-links { display: flex; align-items: center; gap: 16px; }
+.footer-links { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.footer-links .social { display: inline-flex; align-items: center; gap: 7px; height: 44px; }
+.footer-links .social svg { width: 17px; height: 17px; flex-shrink: 0; }
+.footer-links .social span { font-family: var(--mono); font-size: 12px; letter-spacing: .01em; }
+.footer-links .langs { display: inline-flex; align-items: center; gap: 12px; }
 .footer-links a { color: var(--muted); }
 .footer-links a:hover { color: var(--cyan); }
 .footer-links button { border: 0; background: none; height: 44px; padding: 0 4px; font-family: var(--mono); font-size: 12px; color: var(--faint); cursor: pointer; }
@@ -261,6 +265,8 @@ p { margin: 0; }
 }
 @media (max-width: 639px) {
   .site-header .wrap { height: 64px; }
+  .footer-links { width: 100%; gap: 14px 20px; }
+  .footer-links .social { flex: 0 0 100%; }
   .logo img { width: 116px; }
   .hero-actions .btn, .seo-text .btn, .contact-form button[type="submit"] { width: 100%; }
   .portrait { max-width: 100%; }
