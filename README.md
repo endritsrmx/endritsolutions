@@ -21,9 +21,11 @@ Anfragen gehen wie bisher über FormSubmit an info@endr-it.ch. Beim Senden öffn
 Captcha von FormSubmit; danach erhält der Kunde automatisch eine Eingangsbestätigung.
 `gesendet.html` meldet der Seite, dass die Anfrage angekommen ist (nicht löschen).
 
-## Noch zu tun
+## Konzeptprojekte
 
-- **Beispielprojekte** in `js/projects.js` durch echte ersetzen (siehe unten).
+Fünf Projekte sind Konzepte mit fiktiven Marken (Mirabelle, Salon Kante, Fasertal, Linea, Nordlicht).
+Sie tragen das Etikett „Konzept“ (`example: true` in `js/projects.js`). Echte Kundenprojekte ohne dieses Feld eintragen.
+Die Vorlagen der Konzepte liegen nicht auf der Website, nur die fertigen Bilder in `assets/projekte/`.
 
 ## Neues Projekt eintragen
 

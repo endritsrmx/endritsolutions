@@ -41,7 +41,7 @@ window.I18N = (() => {
       pfTitle: 'Projekte', pfLead: 'Eine Auswahl an Websites, IT-Einrichtungen und Social-Media-Auftritten.',
       fAll: 'Alle', pfEmpty: 'In dieser Kategorie ist noch nichts online. Schau bald wieder vorbei.',
       pfCta: 'Dein Projekt als nächstes?', close: 'Schliessen', visit: 'Projekt ansehen',
-      example: 'Beispiel', client: 'Kunde', year: 'Jahr', service: 'Leistung', open: 'Details',
+      example: 'Konzept', client: 'Kunde', year: 'Jahr', service: 'Leistung', open: 'Details',
       cat: { web: 'Website', it: 'IT-Support', social: 'Social Media' }
     },
     en: {
@@ -84,7 +84,7 @@ window.I18N = (() => {
       pfTitle: 'Projects', pfLead: 'A selection of websites, IT setups and social media work.',
       fAll: 'All', pfEmpty: 'Nothing online in this category yet. Check back soon.',
       pfCta: 'Your project next?', close: 'Close', visit: 'View project',
-      example: 'Example', client: 'Client', year: 'Year', service: 'Service', open: 'Details',
+      example: 'Concept', client: 'Client', year: 'Year', service: 'Service', open: 'Details',
       cat: { web: 'Website', it: 'IT support', social: 'Social media' }
     }
   };

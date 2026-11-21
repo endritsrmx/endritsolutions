@@ -19,6 +19,7 @@
       let row = ROWS[r % ROWS.length];
       const left = list.length - i;
       if (left < row.length) row = left === 1 ? ['is-full'] : ['is-wide', 'is-mid']; // Reste sauber füllen
+      else if (row.length === 3 && left === 4) row = ['is-mid', 'is-wide'];               // nie ein Einzelner am Schluss
       row.forEach(cls => { if (i < list.length) out.push([list[i++], cls]); });
       r++;
     }
